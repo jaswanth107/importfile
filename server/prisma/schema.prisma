@@ -18,6 +18,15 @@ model Person {
   createdByImportId String?
 }
 
+model User {
+  id           String      @id @default(cuid())
+  username     String      @unique
+  email        String      @unique
+  passwordHash String
+  createdAt    DateTime    @default(now())
+  importRuns   ImportRun[]
+}
+
 model ImportRun {
   id          String   @id
   fileName    String
@@ -34,6 +43,8 @@ model ImportRun {
   previewExpiresAt DateTime
   rows        ImportRowResult[]
   events      ImportEvent[]
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id])
 }
 
 model ImportRowResult {

@@ -1,4 +1,5 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { useAuth } from "../auth/AuthContext";
 import "./Layout.css";
 
 const NAV_ITEMS = [
@@ -8,6 +9,14 @@ const NAV_ITEMS = [
 ];
 
 export function Layout() {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  function handleLogout() {
+    logout();
+    navigate("/login", { replace: true });
+  }
+
   return (
     <div className="app-shell">
       <aside className="sidebar">
@@ -28,6 +37,15 @@ export function Layout() {
             </NavLink>
           ))}
         </nav>
+        {user && (
+          <div className="sidebar-user">
+            <div className="sidebar-user-name">{user.username}</div>
+            <button className="nav-link focus-ring sidebar-logout" onClick={handleLogout}>
+              <span aria-hidden="true">⏻</span>
+              Log out
+            </button>
+          </div>
+        )}
       </aside>
       <main className="content">
         <Outlet />

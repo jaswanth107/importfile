@@ -19,3 +19,5 @@ services:
         fromDatabase:
           name: importfile-db
           property: connectionString
+      - key: JWT_SECRET
+        generateValue: true

@@ -82,3 +82,14 @@ export interface DashboardStats {
   rowsRejected: number;
   recent: HistoryEntry[];
 }
+
+export interface AuthUser {
+  id: string;
+  username: string;
+  email: string;
+}
+
+export interface AuthResponse {
+  token: string;
+  user: AuthUser;
+}

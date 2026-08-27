@@ -12,9 +12,24 @@ import {
 } from "../import/service.js";
 import { FileValidationError } from "../import/parser.js";
 import { prisma } from "../lib/prisma.js";
+import { requireAuth } from "../auth/middleware.js";
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 export const importRouter = Router();
+
+// Public: no user data, safe to fetch via a plain <a download> link (no Authorization header).
+importRouter.get("/meta/sample-template.csv", (_req, res) => {
+  const csv = stringify([
+    ["Name", "Email", "Phone", "Joining Date"],
+    ["John Smith", "john@example.com", "+919876543210", "2026-01-15"],
+    ["Priya Sharma", "priya@example.com", "9876500000", "2026-02-01"],
+  ]);
+  res.setHeader("Content-Type", "text/csv");
+  res.setHeader("Content-Disposition", 'attachment; filename="sample-people-import.csv"');
+  res.send(csv);
+});
+
+importRouter.use(requireAuth);
 
 importRouter.post("/preview", upload.single("file"), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: "No file was uploaded." });
@@ -32,6 +47,7 @@ importRouter.post("/preview", upload.single("file"), async (req, res) => {
       buffer: req.file.buffer,
       mimetype: req.file.mimetype,
       mappingOverride,
+      userId: req.userId!,
     });
     res.json(result);
   } catch (err) {
@@ -41,24 +57,16 @@ importRouter.post("/preview", upload.single("file"), async (req, res) => {
   }
 });
 
-importRouter.get("/meta/sample-template.csv", (_req, res) => {
-  const csv = stringify([
-    ["Name", "Email", "Phone", "Joining Date"],
-    ["John Smith", "john@example.com", "+919876543210", "2026-01-15"],
-    ["Priya Sharma", "priya@example.com", "9876500000", "2026-02-01"],
-  ]);
-  res.setHeader("Content-Type", "text/csv");
-  res.setHeader("Content-Disposition", 'attachment; filename="sample-people-import.csv"');
-  res.send(csv);
-});
-
-importRouter.get("/meta/dashboard", async (_req, res) => {
+importRouter.get("/meta/dashboard", async (req, res) => {
+  const userId = req.userId!;
   const totals = await prisma.importRun.aggregate({
+    where: { userId },
     _sum: { created: true, updated: true, rejected: true },
     _count: { id: true },
   });
-  const successfulImports = await prisma.importRun.count({ where: { status: "CONFIRMED" } });
+  const successfulImports = await prisma.importRun.count({ where: { userId, status: "CONFIRMED" } });
   const recent = await prisma.importRun.findMany({
+    where: { userId },
     orderBy: { createdAt: "desc" },
     take: 5,
     select: {
@@ -83,13 +91,13 @@ importRouter.get("/meta/dashboard", async (_req, res) => {
   });
 });
 
-importRouter.get("/history", async (_req, res) => {
-  res.json(await getHistory());
+importRouter.get("/history", async (req, res) => {
+  res.json(await getHistory(req.userId!));
 });
 
 importRouter.post("/:id/confirm", async (req, res) => {
   try {
-    const result = await confirmImport(req.params.id);
+    const result = await confirmImport(req.params.id, req.userId!);
     res.json(result);
   } catch (err) {
     if (err instanceof ImportError) {
@@ -103,7 +111,7 @@ importRouter.post("/:id/confirm", async (req, res) => {
 
 importRouter.post("/:id/rollback", async (req, res) => {
   try {
-    const result = await rollbackImport(req.params.id);
+    const result = await rollbackImport(req.params.id, req.userId!);
     res.json(result);
   } catch (err) {
     if (err instanceof ImportError) return res.status(409).json({ error: err.message, code: err.code });
@@ -114,7 +122,7 @@ importRouter.post("/:id/rollback", async (req, res) => {
 
 importRouter.get("/:id", async (req, res) => {
   try {
-    const run = await getImportDetail(req.params.id);
+    const run = await getImportDetail(req.params.id, req.userId!);
     res.json(run);
   } catch (err) {
     if (err instanceof ImportError) return res.status(404).json({ error: err.message });
@@ -124,7 +132,7 @@ importRouter.get("/:id", async (req, res) => {
 
 importRouter.get("/:id/rejected.csv", async (req, res) => {
   try {
-    const csv = await getRejectedCsv(req.params.id);
+    const csv = await getRejectedCsv(req.params.id, req.userId!);
     res.setHeader("Content-Type", "text/csv");
     res.setHeader("Content-Disposition", `attachment; filename="rejected-${req.params.id}.csv"`);
     res.send(csv);
@@ -136,7 +144,7 @@ importRouter.get("/:id/rejected.csv", async (req, res) => {
 
 importRouter.get("/:id/report.json", async (req, res) => {
   try {
-    const run = await getImportDetail(req.params.id);
+    const run = await getImportDetail(req.params.id, req.userId!);
     res.setHeader("Content-Disposition", `attachment; filename="import-report-${req.params.id}.json"`);
     res.json(run);
   } catch (err) {

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { ApiError, confirmImport, getImportDetail, reportUrl, rollbackImport } from "../api/client";
+import { ApiError, confirmImport, downloadReport, getImportDetail, rollbackImport } from "../api/client";
 import type { ImportPreview } from "../api/types";
 import { Button } from "../components/Button";
 import { Card } from "../components/Card";
@@ -88,9 +88,9 @@ export function ImportDetail() {
         </div>
         <div className="detail-actions">
           <div className="detail-actions-group">
-            <a href={reportUrl(run.id)} download>
-              <Button variant="secondary">Download Import Report</Button>
-            </a>
+            <Button variant="secondary" onClick={() => downloadReport(run.id)}>
+              Download Import Report
+            </Button>
             {run.status === "CONFIRMED" && (
               <Button variant="danger" onClick={handleRollback} disabled={rollingBack}>
                 {rollingBack ? "Rolling back..." : "Rollback Import"}

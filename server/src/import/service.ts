@@ -31,6 +31,7 @@ export interface PreviewOptions {
   buffer: Buffer;
   mimetype: string;
   mappingOverride?: Partial<Record<FieldKey, string>>;
+  userId: string;
 }
 
 export interface PreviewResponse {
@@ -78,6 +79,7 @@ export async function createPreview(opts: PreviewOptions): Promise<PreviewRespon
           warnings: candidatePreview.counts.warnings,
           previewJson: JSON.stringify(candidatePreview),
           previewExpiresAt: new Date(candidatePreview.expiresAt),
+          userId: opts.userId,
           events: { create: { type: "PREVIEW_GENERATED", message: `Preview generated for ${opts.fileName}` } },
         },
       });
@@ -93,9 +95,9 @@ export async function createPreview(opts: PreviewOptions): Promise<PreviewRespon
   return { preview: preview!, mapping, unmapped, needsMapping: false, headers: parsed.headers };
 }
 
-export async function confirmImport(importId: string) {
+export async function confirmImport(importId: string, userId: string) {
   const run = await prisma.importRun.findUnique({ where: { id: importId } });
-  if (!run) throw new ImportError("Import not found.", "NOT_FOUND");
+  if (!run || run.userId !== userId) throw new ImportError("Import not found.", "NOT_FOUND");
   if (run.status !== "PENDING") throw new ImportError("This import has already been processed.", "ALREADY_PROCESSED");
   if (run.previewExpiresAt.getTime() < Date.now()) {
     throw new ImportError("This preview has expired. Please upload the file again to generate a fresh preview.", "EXPIRED");
@@ -202,8 +204,8 @@ export async function confirmImport(importId: string) {
   return { importId, counts, rows: finalRows };
 }
 
-export async function getHistory() {
-  const runs = await prisma.importRun.findMany({ orderBy: { createdAt: "desc" } });
+export async function getHistory(userId: string) {
+  const runs = await prisma.importRun.findMany({ where: { userId }, orderBy: { createdAt: "desc" } });
   return runs.map((r) => ({
     id: r.id,
     fileName: r.fileName,
@@ -218,14 +220,14 @@ export async function getHistory() {
   }));
 }
 
-export async function getImportDetail(importId: string) {
+export async function getImportDetail(importId: string, userId: string) {
   const run = await prisma.importRun.findUnique({ where: { id: importId }, include: { rows: true, events: true } });
-  if (!run) throw new ImportError("Import not found.", "NOT_FOUND");
+  if (!run || run.userId !== userId) throw new ImportError("Import not found.", "NOT_FOUND");
   return run;
 }
 
-export async function getRejectedCsv(importId: string): Promise<string> {
-  const run = await getImportDetail(importId);
+export async function getRejectedCsv(importId: string, userId: string): Promise<string> {
+  const run = await getImportDetail(importId, userId);
   const rejected = run.rows.filter((r) => r.status === "REJECTED");
   const header = ["Row", "Name", "Email", "Phone", "Joining Date", "Reason"];
   const lines = [header.join(",")];
@@ -238,8 +240,8 @@ export async function getRejectedCsv(importId: string): Promise<string> {
   return lines.join("\n");
 }
 
-export async function rollbackImport(importId: string) {
-  const run = await getImportDetail(importId);
+export async function rollbackImport(importId: string, userId: string) {
+  const run = await getImportDetail(importId, userId);
   if (run.status !== "CONFIRMED") throw new ImportError("Only confirmed imports can be rolled back.", "INVALID_STATE");
 
   const existingUndo = await prisma.undoLog.findUnique({ where: { importRunId: importId } });
