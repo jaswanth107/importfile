@@ -1,12 +1,11 @@
 import { execSync } from "node:child_process";
-import { existsSync, unlinkSync } from "node:fs";
 
-const TEST_DB_PATH = "./prisma/test.db";
+const TEST_DATABASE_URL =
+  process.env.TEST_DATABASE_URL ?? "postgresql://importfile:importfile@localhost:5432/importfile";
 
 export default function globalSetup() {
-  if (existsSync(TEST_DB_PATH)) unlinkSync(TEST_DB_PATH);
-  execSync("npx prisma migrate deploy", {
-    env: { ...process.env, DATABASE_URL: `file:${TEST_DB_PATH}` },
+  execSync("npx prisma migrate reset --force --skip-generate --skip-seed", {
+    env: { ...process.env, DATABASE_URL: TEST_DATABASE_URL },
     stdio: "inherit",
   });
 }
