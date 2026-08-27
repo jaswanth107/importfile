@@ -1,0 +1,27 @@
+@import "./pages.css";
+
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.quick-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.recent-section h2 {
+  font-size: 15px;
+  margin: 0 0 14px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}

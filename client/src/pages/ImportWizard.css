@@ -1,0 +1,207 @@
+@import "./pages.css";
+
+.wizard {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.alert {
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+}
+
+.alert-error {
+  background: var(--danger-dim);
+  color: var(--danger);
+  border: 1px solid rgba(255, 93, 93, 0.3);
+}
+
+.dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 56px 24px;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-lg);
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.dropzone-active {
+  border-color: var(--accent);
+  background: rgba(57, 255, 136, 0.04);
+}
+
+.dropzone-icon {
+  font-size: 28px;
+  color: var(--accent);
+}
+
+.dropzone-title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.dropzone-subtitle {
+  color: var(--text-muted);
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.file-preview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px;
+  flex-wrap: wrap;
+}
+
+.file-preview-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.file-icon {
+  font-size: 24px;
+}
+
+.file-name {
+  font-weight: 600;
+}
+
+.file-meta {
+  color: var(--text-muted);
+  font-size: 12.5px;
+}
+
+.file-preview-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.upload-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.link-button {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 13px;
+  padding: 0;
+}
+
+.loading-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: var(--text-muted);
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.mapping-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mapping-row {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  align-items: center;
+  gap: 12px;
+}
+
+.mapping-field {
+  font-weight: 500;
+}
+
+.mapping-auto {
+  color: var(--text-muted);
+  font-weight: 400;
+  font-size: 12px;
+}
+
+.mapping-row select {
+  background: var(--surface-raised);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+}
+
+.mapping-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.help-list {
+  padding-left: 20px;
+  line-height: 1.8;
+}
+
+.success-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  padding: 40px;
+}
+
+.success-icon {
+  font-size: 36px;
+  color: var(--accent);
+  animation: pop-in 0.3s ease;
+}
+
+@keyframes pop-in {
+  from {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.success-note {
+  color: var(--text-muted);
+}
+
+.success-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
