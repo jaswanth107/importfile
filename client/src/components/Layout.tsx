@@ -1,5 +1,6 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
+import { ImportFlowLogo } from "./ImportFlowLogo";
 import "./Layout.css";
 
 const NAV_ITEMS = [
@@ -20,10 +21,8 @@ export function Layout() {
   return (
     <div className="app-shell">
       <aside className="sidebar">
-        <div className="brand">
-          <span className="brand-dot" />
-          People Import
-        </div>
+        <ImportFlowLogo tagline />
+
         <nav>
           {NAV_ITEMS.map((item) => (
             <NavLink

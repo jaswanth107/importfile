@@ -14,21 +14,8 @@
   gap: 28px;
 }
 
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: 700;
-  font-size: 15px;
+.sidebar > .importflow-logo {
   padding: 0 8px;
-}
-
-.brand-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 12px var(--accent);
 }
 
 .sidebar nav {

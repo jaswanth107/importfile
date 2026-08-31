@@ -4,6 +4,7 @@ import { useAuth } from "../auth/AuthContext";
 import { ApiError } from "../api/client";
 import { Button } from "../components/Button";
 import { Card } from "../components/Card";
+import { ImportFlowLogo } from "../components/ImportFlowLogo";
 import "./Login.css";
 
 type Mode = "login" | "signup";
@@ -39,9 +40,8 @@ export function Login() {
   return (
     <div className="auth-page">
       <Card className="auth-card">
-        <div className="brand auth-brand">
-          <span className="brand-dot" />
-          People Import
+        <div className="auth-brand">
+          <ImportFlowLogo tagline size="md" />
         </div>
 
         <div className="auth-tabs">

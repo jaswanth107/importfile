@@ -12,9 +12,18 @@
 }
 
 .auth-brand {
+  display: flex;
   justify-content: center;
   margin-bottom: 24px;
-  font-size: 15px;
+}
+
+.auth-brand .importflow-logo-row {
+  justify-content: center;
+}
+
+.auth-brand .importflow-tagline {
+  text-align: center;
+  padding-left: 0;
 }
 
 .auth-tabs {
