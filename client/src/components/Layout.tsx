@@ -6,6 +6,7 @@ import "./Layout.css";
 const NAV_ITEMS = [
   { to: "/", label: "Dashboard", icon: "◆", end: true },
   { to: "/import", label: "Import People", icon: "⇪", end: false },
+  { to: "/clean-data", label: "Clean Data", icon: "⬡", end: false },
   { to: "/history", label: "Import History", icon: "☰", end: false },
 ];
 

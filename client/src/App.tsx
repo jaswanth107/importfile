@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from "./auth/AuthContext";
 import { Layout } from "./components/Layout";
 import { Dashboard } from "./pages/Dashboard";
 import { ImportWizard } from "./pages/ImportWizard";
+import { CleanExport } from "./pages/CleanExport";
 import { History } from "./pages/History";
 import { ImportDetail } from "./pages/ImportDetail";
 import { Login } from "./pages/Login";
@@ -28,6 +29,7 @@ export default function App() {
         >
           <Route path="/" element={<Dashboard />} />
           <Route path="/import" element={<ImportWizard />} />
+          <Route path="/clean-data" element={<CleanExport />} />
           <Route path="/history" element={<History />} />
           <Route path="/history/:id" element={<ImportDetail />} />
         </Route>

@@ -1,8 +1,9 @@
-import type { AuthResponse, AuthUser, DashboardStats, FieldKey, HistoryEntry, PreviewResponse } from "./types";
+import type { AuthResponse, AuthUser, DashboardStats, FieldKey, HistoryEntry, PersonEntry, PreviewResponse } from "./types";
 import { clearToken, getToken } from "./authToken";
 
 const BASE = "/api/import";
 const AUTH_BASE = "/api/auth";
+const PEOPLE_BASE = "/api/people";
 
 export class ApiError extends Error {
   status: number;
@@ -100,6 +101,17 @@ export async function downloadReport(importId: string): Promise<void> {
   const res = await fetch(`${BASE}/${importId}/report.xlsx`, { headers: authHeaders() });
   if (!res.ok) throw new ApiError("Couldn't download the import report.", res.status);
   await saveBlob(res, `import-report-${importId}.xlsx`);
+}
+
+export async function getPeople(): Promise<PersonEntry[]> {
+  const res = await fetch(PEOPLE_BASE, { headers: authHeaders() });
+  return handle(res);
+}
+
+export async function downloadPeopleExport(): Promise<void> {
+  const res = await fetch(`${PEOPLE_BASE}/export.xlsx`, { headers: authHeaders() });
+  if (!res.ok) throw new ApiError("Couldn't download the clean data sheet.", res.status);
+  await saveBlob(res, "people-clean.xlsx");
 }
 
 async function saveBlob(res: Response, filename: string) {

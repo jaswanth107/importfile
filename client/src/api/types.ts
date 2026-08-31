@@ -83,6 +83,15 @@ export interface DashboardStats {
   recent: HistoryEntry[];
 }
 
+export interface PersonEntry {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  joiningDate: string;
+  createdAt: string;
+}
+
 export interface AuthUser {
   id: string;
   username: string;
