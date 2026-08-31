@@ -1,3 +1,4 @@
+import * as XLSX from "xlsx";
 import { prisma } from "../lib/prisma.js";
 import { buildPreview, resolveMapping } from "./pipeline.js";
 import { parseFile, detectFileKind, type ParsedFile } from "./parser.js";
@@ -238,6 +239,59 @@ export async function getRejectedCsv(importId: string, userId: string): Promise<
     lines.push(cells.join(","));
   }
   return lines.join("\n");
+}
+
+export async function buildImportReportWorkbook(importId: string, userId: string): Promise<Buffer> {
+  const run = await getImportDetail(importId, userId);
+
+  const summarySheet = XLSX.utils.aoa_to_sheet([
+    ["Import ID", run.id],
+    ["File Name", sanitizeForExport(run.fileName)],
+    ["Status", run.status],
+    ["Total Rows", run.totalRows],
+    ["Created", run.created],
+    ["Updated", run.updated],
+    ["Skipped", run.skipped],
+    ["Rejected", run.rejected],
+    ["Warnings", run.warnings],
+    ["Created At", run.createdAt.toISOString()],
+    ["Confirmed At", run.confirmedAt ? run.confirmedAt.toISOString() : ""],
+  ]);
+  summarySheet["!cols"] = [{ wch: 16 }, { wch: 40 }];
+
+  const rowsHeader = ["Row", "Name", "Email", "Phone", "Joining Date", "Status", "Reason", "Warnings"];
+  const rowsSheet = XLSX.utils.aoa_to_sheet([
+    rowsHeader,
+    ...run.rows
+      .sort((a, b) => a.rowNumber - b.rowNumber)
+      .map((r) => [
+        r.rowNumber,
+        sanitizeForExport(r.name),
+        sanitizeForExport(r.email),
+        sanitizeForExport(r.phone),
+        sanitizeForExport(r.joiningDate),
+        r.status,
+        sanitizeForExport(r.reason ?? ""),
+        sanitizeForExport(r.warnings ?? ""),
+      ]),
+  ]);
+  rowsSheet["!cols"] = [{ wch: 6 }, { wch: 22 }, { wch: 28 }, { wch: 16 }, { wch: 14 }, { wch: 12 }, { wch: 30 }, { wch: 30 }];
+
+  const eventsHeader = ["Time", "Type", "Message"];
+  const eventsSheet = XLSX.utils.aoa_to_sheet([
+    eventsHeader,
+    ...run.events
+      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+      .map((e) => [e.createdAt.toISOString(), e.type, sanitizeForExport(e.message)]),
+  ]);
+  eventsSheet["!cols"] = [{ wch: 22 }, { wch: 20 }, { wch: 50 }];
+
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, summarySheet, "Summary");
+  XLSX.utils.book_append_sheet(workbook, rowsSheet, "Rows");
+  XLSX.utils.book_append_sheet(workbook, eventsSheet, "Events");
+
+  return XLSX.write(workbook, { type: "buffer", bookType: "xlsx" }) as Buffer;
 }
 
 export async function rollbackImport(importId: string, userId: string) {

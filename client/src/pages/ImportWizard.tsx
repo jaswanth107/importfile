@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { confirmImport, sampleTemplateUrl, uploadPreview } from "../api/client";
+import { confirmImport, downloadReport, sampleTemplateUrl, uploadPreview } from "../api/client";
 import { ApiError } from "../api/client";
 import type { FieldKey, ImportPreview, PreviewResponse } from "../api/types";
 import { Button } from "../components/Button";
@@ -341,9 +341,9 @@ function SuccessStep({
         <Button variant="secondary" onClick={onViewHistory}>
           View Report
         </Button>
-        <a href={`/api/import/${preview.importId}/report.json`} download>
-          <Button variant="secondary">Download Report</Button>
-        </a>
+        <Button variant="secondary" onClick={() => downloadReport(preview.importId)}>
+          Download Report
+        </Button>
         <Button variant="primary" onClick={onImportAnother}>
           Import Another File
         </Button>

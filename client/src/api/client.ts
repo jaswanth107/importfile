@@ -97,9 +97,9 @@ export async function downloadRejectedCsv(importId: string): Promise<void> {
 }
 
 export async function downloadReport(importId: string): Promise<void> {
-  const res = await fetch(`${BASE}/${importId}/report.json`, { headers: authHeaders() });
+  const res = await fetch(`${BASE}/${importId}/report.xlsx`, { headers: authHeaders() });
   if (!res.ok) throw new ApiError("Couldn't download the import report.", res.status);
-  await saveBlob(res, `import-report-${importId}.json`);
+  await saveBlob(res, `import-report-${importId}.xlsx`);
 }
 
 async function saveBlob(res: Response, filename: string) {

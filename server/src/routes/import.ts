@@ -7,6 +7,7 @@ import {
   getHistory,
   getImportDetail,
   getRejectedCsv,
+  buildImportReportWorkbook,
   rollbackImport,
   ImportError,
 } from "../import/service.js";
@@ -142,11 +143,12 @@ importRouter.get("/:id/rejected.csv", async (req, res) => {
   }
 });
 
-importRouter.get("/:id/report.json", async (req, res) => {
+importRouter.get("/:id/report.xlsx", async (req, res) => {
   try {
-    const run = await getImportDetail(req.params.id, req.userId!);
-    res.setHeader("Content-Disposition", `attachment; filename="import-report-${req.params.id}.json"`);
-    res.json(run);
+    const workbook = await buildImportReportWorkbook(req.params.id, req.userId!);
+    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    res.setHeader("Content-Disposition", `attachment; filename="import-report-${req.params.id}.xlsx"`);
+    res.send(workbook);
   } catch (err) {
     if (err instanceof ImportError) return res.status(404).json({ error: err.message });
     throw err;
