@@ -430,3 +430,43 @@
   gap: 10px;
   flex-wrap: wrap;
 }
+
+.export-mode-tabs {
+  margin: 16px 0;
+  width: fit-content;
+}
+
+.export-dialog-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.export-dialog-field input,
+.export-dialog-field select {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.export-dialog-field input:focus,
+.export-dialog-field select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.export-files-section {
+  margin-top: 32px;
+}
+
+.export-file-row-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}

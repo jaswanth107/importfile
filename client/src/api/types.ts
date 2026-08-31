@@ -92,6 +92,14 @@ export interface PersonEntry {
   createdAt: string;
 }
 
+export interface ExportFileSummary {
+  id: string;
+  name: string;
+  rowCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface AuthUser {
   id: string;
   username: string;

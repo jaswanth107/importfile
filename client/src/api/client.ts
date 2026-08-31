@@ -1,4 +1,13 @@
-import type { AuthResponse, AuthUser, DashboardStats, FieldKey, HistoryEntry, PersonEntry, PreviewResponse } from "./types";
+import type {
+  AuthResponse,
+  AuthUser,
+  DashboardStats,
+  ExportFileSummary,
+  FieldKey,
+  HistoryEntry,
+  PersonEntry,
+  PreviewResponse,
+} from "./types";
 import { clearToken, getToken } from "./authToken";
 
 const BASE = "/api/import";
@@ -112,6 +121,36 @@ export async function downloadPeopleExport(): Promise<void> {
   const res = await fetch(`${PEOPLE_BASE}/export.xlsx`, { headers: authHeaders() });
   if (!res.ok) throw new ApiError("Couldn't download the clean data sheet.", res.status);
   await saveBlob(res, "people-clean.xlsx");
+}
+
+export async function listExportFiles(): Promise<ExportFileSummary[]> {
+  const res = await fetch(`${PEOPLE_BASE}/files`, { headers: authHeaders() });
+  return handle(res);
+}
+
+export async function generateExportFile(
+  input: { mode: "new"; name: string } | { mode: "existing"; targetId: string }
+): Promise<ExportFileSummary> {
+  const res = await fetch(`${PEOPLE_BASE}/files`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(input),
+  });
+  return handle(res);
+}
+
+export async function downloadExportFile(fileId: string, name: string): Promise<void> {
+  const res = await fetch(`${PEOPLE_BASE}/files/${fileId}/download.xlsx`, { headers: authHeaders() });
+  if (!res.ok) throw new ApiError("Couldn't download this file.", res.status);
+  await saveBlob(res, `${name || "clean-data"}.xlsx`);
+}
+
+export async function deleteExportFile(fileId: string): Promise<void> {
+  const res = await fetch(`${PEOPLE_BASE}/files/${fileId}`, { method: "DELETE", headers: authHeaders() });
+  if (!res.ok && res.status !== 204) {
+    const body = await res.json().catch(() => ({ error: "Couldn't delete this file." }));
+    throw new ApiError(body.error ?? "Couldn't delete this file.", res.status);
+  }
 }
 
 async function saveBlob(res: Response, filename: string) {

@@ -25,6 +25,7 @@ model User {
   passwordHash String
   createdAt    DateTime    @default(now())
   importRuns   ImportRun[]
+  cleanExportFiles CleanExportFile[]
 }
 
 model ImportRun {
@@ -67,6 +68,17 @@ model ImportRowResult {
 model UndoLog {
   importRunId String @id
   undoneAt    DateTime @default(now())
+}
+
+model CleanExportFile {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  name      String
+  rowsJson  String
+  rowCount  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model ImportEvent {
