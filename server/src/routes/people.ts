@@ -15,8 +15,8 @@ export const peopleRouter = Router();
 
 peopleRouter.use(requireAuth);
 
-peopleRouter.get("/", async (_req, res) => {
-  const people = await getAllPeople();
+peopleRouter.get("/", async (req, res) => {
+  const people = await getAllPeople(req.userId!);
   res.json(
     people.map((p) => ({
       id: p.id,
@@ -29,8 +29,8 @@ peopleRouter.get("/", async (_req, res) => {
   );
 });
 
-peopleRouter.get("/export.xlsx", async (_req, res) => {
-  const workbook = await buildPeopleWorkbook();
+peopleRouter.get("/export.xlsx", async (req, res) => {
+  const workbook = await buildPeopleWorkbook(req.userId!);
   res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
   res.setHeader("Content-Disposition", 'attachment; filename="people-clean.xlsx"');
   res.send(workbook);

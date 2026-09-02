@@ -15,8 +15,8 @@ export class PeopleServiceError extends Error {
   }
 }
 
-export async function getAllPeople() {
-  return prisma.person.findMany({ orderBy: { name: "asc" } });
+export async function getAllPeople(userId: string) {
+  return prisma.person.findMany({ where: { userId }, orderBy: { name: "asc" } });
 }
 
 function toCleanRows(people: Awaited<ReturnType<typeof getAllPeople>>): CleanRow[] {
@@ -36,8 +36,8 @@ function buildWorkbookBuffer(rows: CleanRow[]): Buffer {
   return XLSX.write(workbook, { type: "buffer", bookType: "xlsx" }) as Buffer;
 }
 
-export async function buildPeopleWorkbook(): Promise<Buffer> {
-  const people = await getAllPeople();
+export async function buildPeopleWorkbook(userId: string): Promise<Buffer> {
+  const people = await getAllPeople(userId);
   return buildWorkbookBuffer(toCleanRows(people));
 }
 
@@ -57,7 +57,7 @@ async function getExportFileOrThrow(userId: string, fileId: string) {
 }
 
 export async function createExportFile(userId: string, name: string) {
-  const people = await getAllPeople();
+  const people = await getAllPeople(userId);
   const rows = toCleanRows(people);
   const file = await prisma.cleanExportFile.create({
     data: { userId, name, rowsJson: JSON.stringify(rows), rowCount: rows.length },
@@ -68,7 +68,7 @@ export async function createExportFile(userId: string, name: string) {
 export async function addToExportFile(userId: string, fileId: string) {
   const file = await getExportFileOrThrow(userId, fileId);
   const existingRows: CleanRow[] = JSON.parse(file.rowsJson);
-  const people = await getAllPeople();
+  const people = await getAllPeople(userId);
   const currentRows = toCleanRows(people);
 
   const merged = new Map<string, CleanRow>();
